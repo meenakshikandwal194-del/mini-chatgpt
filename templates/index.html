@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini ChatGPT</title>
+</head>
+<body style="font-family: Arial; padding: 30px;">
+  <h1>Mini ChatGPT App</h1>
+  <input id="message" placeholder="Ask something..." style="width:70%; padding:10px;" />
+  <button onclick="sendMessage()" style="padding:10px;">Send</button>
+  <h3>AI Reply:</h3>
+  <p id="reply"></p>
+
+  <script>
+    async function sendMessage() {
+      const message = document.getElementById("message").value;
+      document.getElementById("reply").innerText = "Thinking...";
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: message})
+      });
+      const data = await res.json();
+      document.getElementById("reply").innerText = data.reply;
+    }
+  </script>
+</body>
+</html>

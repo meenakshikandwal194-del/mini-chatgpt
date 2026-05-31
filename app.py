@@ -1,4 +1,4 @@
-app.run(debug=True)app.run(host="0.0.0.0", port=5000)
+app.run(host="0.0.0.0", port=5000)
 from flask import Flask, request, jsonify, render_template
 import requests
 

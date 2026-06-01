@@ -11,27 +11,20 @@ client = Groq(
 @app.route("/")
 def home():
     return render_template("index.html")
-
 @app.route("/chat", methods=["POST"])
 def chat():
+    try:
+        user_message = request.json["message"]
 
-    user_message = request.json["message"]
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "user", "content": user_message}
+            ]
+        )
 
-    completion = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {
-                "role": "user",
-                "content": user_message
-            }
-        ]
-    )
+        ai_reply = completion.choices[0].message.content
+        return jsonify({"reply": ai_reply})
 
-    ai_reply = completion.choices[0].message.content
-
-    return jsonify({
-        "reply": ai_reply
-    })
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

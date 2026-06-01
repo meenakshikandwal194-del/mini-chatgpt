@@ -1,26 +1,38 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Mini ChatGPT</title>
-</head>
 <body style="font-family: Arial; padding: 30px;">
-  <h1>Mini ChatGPT App</h1>
-  <input id="message" placeholder="Ask something..." style="width:70%; padding:10px;" />
+  <h1>Mini ChatGPT</h1>
+
+  <input id="message" placeholder="Ask something..." style="width:70%; padding:10px;">
   <button onclick="sendMessage()" style="padding:10px;">Send</button>
-  <h3>AI Reply:</h3>
-  <p id="reply"></p>
+
+  <h3>Reply:</h3>
+  <pre id="reply" style="white-space: pre-wrap;"></pre>
 
   <script>
     async function sendMessage() {
       const message = document.getElementById("message").value;
-      document.getElementById("reply").innerText = "Thinking...";
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({message: message})
-      });
-      const data = await res.json();
-      document.getElementById("reply").innerText = data.reply;
+      const reply = document.getElementById("reply");
+      reply.innerText = "Thinking...";
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({message})
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          reply.innerText = "Error: " + (data.error || "Something went wrong");
+          return;
+        }
+
+        reply.innerText = data.reply;
+      } catch (err) {
+        reply.innerText = "Frontend error: " + err.message;
+      }
     }
   </script>
 </body>

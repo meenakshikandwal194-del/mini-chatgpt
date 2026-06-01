@@ -1,7 +1,16 @@
 from flask import Flask, request, jsonify, render_template
-import requests
+from google import genai
+import os
 
 app = Flask(__name__)
+
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
+SYSTEM_PROMPT = """
+You are Azure Dost AI.
+Explain Azure and cloud concepts to non-IT beginners in simple Hindi-English.
+Use real-life examples and beginner-friendly language.
+"""
 
 @app.route("/")
 def home():
@@ -11,17 +20,14 @@ def home():
 def chat():
     user_message = request.json["message"]
 
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "phi3",
-            "prompt": user_message,
-            "stream": False
-        }
+    prompt = SYSTEM_PROMPT + "\nUser question: " + user_message
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
     )
 
-    ai_reply = response.json()["response"]
-    return jsonify({"reply": ai_reply})
+    return jsonify({"reply": response.text})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
